@@ -1,0 +1,36 @@
+syntax = "proto3";
+package tcpb;
+
+option go_package = "../tcpb";
+
+enum Status{
+  Invalid = 0;
+  Prepare = 1;
+  Submit = 2;
+  Abort = 3;
+  Success = 4;
+}
+
+message Empty{}
+
+message TranRequest{
+  string gid = 1;
+  string trans_type = 2; // tcc, saga, ...
+  Status status = 3;
+  string payloads = 4;
+  string reason = 5; // 失败原因
+}
+
+message BranchRequest{
+  string gid = 1;
+  string branch_id = 2;
+  string resource = 3; // 业务需要的资源
+  map<string, string> header = 4; // 业务自定义数据，比如tc推动submit和abort的调用信息
+}
+
+service dtf{
+  rpc Prepare(TranRequest) returns(Empty);
+  rpc Submit(TranRequest) returns(Empty);
+  rpc Abort(TranRequest) returns(Empty);
+  rpc RegisterBranch(BranchRequest) returns(Empty);
+}
